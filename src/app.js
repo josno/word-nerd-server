@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const { requireAuth } = require('./middleware/basic-auth');
-const GamesService = require('./games-service');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');

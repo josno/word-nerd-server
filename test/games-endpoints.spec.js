@@ -11,6 +11,13 @@ describe.only('Games Endpoints', function() {
 		password: 'nerdpass'
 	};
 
+	function makeAuthHeader(user) {
+		const token = Buffer.from(
+			`${user.user_name}:${user.password}`
+		).toString('base64');
+		return `Basic ${token}`;
+	}
+
 	before('make knex instance', () => {
 		db = knex({
 			client: 'pg',
@@ -31,7 +38,8 @@ describe.only('Games Endpoints', function() {
 		context(`Given no words`, () => {
 			it(`responds with 200 and an empty list`, () => {
 				return supertest(app)
-					.get('/api/v1/games')
+					.get('/api/v1/games/')
+					.set('Authorization', makeAuthHeader(testUser))
 					.expect(200, []);
 			});
 		});

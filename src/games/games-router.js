@@ -1,37 +1,49 @@
 const express = require('express');
-const GamesService = require('./games-service');
+const path = require('path');
+const GamesService = require('../games/games-service');
 const { requireAuth } = require('../middleware/basic-auth');
 // const { requireAuth } = require('../middleware/jwt-auth');
 
 const gamesRouter = express.Router();
-
-// gamesRouter
-// 	.route('/')
-// 	.all(requireAuth)
-// 	.get((req, res, next) => {
-// 		GamesService.getGameByUserId(
-// 			res.app.get('db'),
-// 			req.params.user.id
-// 		).then(response => res.json(response));
-// 	});
-// .post('api/v1/games', (req, res, next) => {});
+const jsonBodyParser = express.json();
 
 gamesRouter
 	.route('/')
 	.all(requireAuth)
 	.get((req, res, next) => {
-		GamesService.getGamesByUserId(res.app.get('db')).then(response =>
-			res.status(200).json(response)
-		);
+		GamesService.getGameByUserId(
+			res.app.get('db'),
+			req.user.id
+		).then(response => res.status(200).json(response));
+	})
+	.post(requireAuth, jsonBodyParser, (req, res, next) => {
+		const { title, word_list, date_created, user_id } = req.body;
+
+		const newGame = { title, word_list, date_created, user_id };
+
+		for (const [key, value] of Object.entries(newGame))
+			if (value == null)
+				return res.status(400).json({
+					error: `Missing '${key}' in request body`
+				});
+
+		GamesService.insertNewGame(req.app.get('db'), newGame)
+			.then(game => {
+				res.status(201)
+					.location(path.posix.join(req.originalUrl, `/${game.id}`))
+					.json(game);
+			})
+			.catch(next);
 	});
-// .post('api/v1/games', (req, res, next) => {
-// 	/*When user submits a new game:
-//    1. on Submit - POST new game
-//    2. get game ID
-//    3. generate new state
-//    4. grab the list of words from game Id
-//    5. generate the first word from that list
-// */
-// });
+
+gamesRouter
+	.route('/:game_id')
+	.all(requireAuth)
+	.get((req, res, next) => {
+		GamesService.getGameByGameId(
+			res.app.get('db'),
+			req.params.game_id
+		).then(response => res.status(200).json(response));
+	});
 
 module.exports = gamesRouter;

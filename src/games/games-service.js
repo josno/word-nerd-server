@@ -5,7 +5,7 @@ const GamesService = {
 	getGameByGameId(db, id) {
 		return db
 			.from('words')
-			.select('*')
+			.select('word_list')
 			.where('id', id)
 			.first();
 	},
@@ -13,8 +13,7 @@ const GamesService = {
 		return db
 			.from('words')
 			.select('*')
-			.where('user_id', userid)
-			.first();
+			.where('user_id', userid);
 	},
 	getGameByUsername(db, username) {
 		return db
@@ -37,10 +36,10 @@ const GamesService = {
 	},
 	insertNewGame(db, newGame) {
 		return db
-			.insert(newNote)
+			.insert(newGame)
 			.into('words')
 			.returning('*')
-			.then(array => array[0]);
+			.then(gamearray => gamearray[0]);
 	}
 };
 
