@@ -6,6 +6,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const gamesRouter = require('./games/games-router');
+const authRouter = require('./auth/auth-router');
 const app = express();
 
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 // 	});
 
 app.use('/api/v1/games', gamesRouter);
+app.use('/api/auth', authRouter);
 
 app.use(function errorHandler(error, req, res, next) {
 	let response;

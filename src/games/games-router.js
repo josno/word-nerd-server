@@ -19,8 +19,10 @@ gamesRouter
 	.post(requireAuth, jsonBodyParser, (req, res, next) => {
 		const { title, word_list, date_created, user_id } = req.body;
 
+		//create new game object using the information from the request body
 		const newGame = { title, word_list, date_created, user_id };
 
+		//checks that all required keys exist
 		for (const [key, value] of Object.entries(newGame))
 			if (value == null)
 				return res.status(400).json({

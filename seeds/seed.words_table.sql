@@ -1,8 +1,7 @@
 BEGIN;
 
 TRUNCATE
-    users,
-    words
+    words, users
     RESTART IDENTITY CASCADE;
 
 INSERT INTO users (user_name, full_name, password)
