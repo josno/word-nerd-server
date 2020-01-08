@@ -23,9 +23,9 @@ describe('Auth Endpoints', function() {
 
 	afterEach('cleanup', () => helpers.cleanTables(db));
 
-	describe(`POST /api/auth/login`, () => {
-		beforeEach('insert users', () => helpers.seedUsers(db, testUsers));
+	beforeEach('insert users', () => helpers.seedUsers(db, testUsers));
 
+	describe.only(`POST /api/auth/login`, () => {
 		const requiredFields = ['user_name', 'password'];
 
 		requiredFields.forEach(field => {
@@ -68,14 +68,13 @@ describe('Auth Endpoints', function() {
 				.expect(400, { error: `Incorrect user_name or password` });
 		});
 
-		it.only(`responds 200 and JWT auth token using secret when valid credentials`, () => {
+		it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
 			const userValidCreds = {
 				user_name: testUser.user_name,
 				password: testUser.password
 			};
-
 			const expectedToken = jwt.sign(
-				{ user_id: testUser.id }, // payload
+				{ user_id: testUser.id },
 				process.env.JWT_SECRET,
 				{
 					subject: testUser.user_name,

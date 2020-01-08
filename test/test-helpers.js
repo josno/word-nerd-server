@@ -15,15 +15,13 @@ function makeUsersArray() {
 			id: 1,
 			user_name: 'nerd',
 			full_name: 'Word Nerd',
-			password:
-				'$2a$12$CaTYM00gguRlZ9X73Fmum.fNBniS04q2eQKEwN1YRH2rq35HUhs/e'
+			password: 'nerdpass'
 		},
 		{
 			id: 2,
 			user_name: 'dunder',
 			full_name: 'Dunder Mifflin',
-			password:
-				'$2a$12$b2/aH8A.8RvOPqlRNDD/BejYZ70.D455AxV52EOsbALud6y2fyZCO'
+			password: 'dunderpass'
 		}
 	];
 }
@@ -82,33 +80,23 @@ function makeGamesArray(users) {
 	];
 }
 
-function seedTestTables(db, users, games) {
-	// return db
-	// 	.into('users')
-	// 	.insert(users)
-	// 	.then(() => db.into('words').insert(games));
-
+function seedGamesTables(db, users, games) {
 	// use a transaction to group the queries and auto rollback on any failure
 	return db.transaction(async trx => {
-		await trx.into('users').insert(users);
+		await seedUsers(trx, users);
 		await trx.into('games').insert(games);
 		// update the auto sequence to match the forced id values
-		await Promise.all([
-			trx.raw(`SELECT setval('users_id_seq', ?)`, [
-				users[users.length - 1].id
-			]),
-			trx.raw(`SELECT setval('games_id_seq', ?)`, [
-				games[games.length - 1].id
-			])
+		await trx.raw(`SELECT setval('games_id_seq', ?)`, [
+			games[games.length - 1].id
 		]);
-		// only insert comments if there are some, also update the sequence counter
 	});
 }
 
 function seedUsers(db, users) {
 	const preppedUsers = users.map(user => ({
 		...user,
-		password: user.password
+		//sync bcrypt hashed password to regular password
+		password: bcrypt.hashSync(user.password, 1)
 	}));
 	return db
 		.into('users')
@@ -155,7 +143,7 @@ module.exports = {
 	makeGamesFixtures,
 	makeUsersArray,
 	makeGamesArray,
-	seedTestTables,
+	seedGamesTables,
 	cleanTables,
 	makeAuthHeader,
 	seedUsers

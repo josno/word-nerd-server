@@ -1,20 +1,23 @@
 const GamesService = {
-	getGames(db) {
-		return db.from('games').select('*');
-	},
 	getGameByGameId(db, id) {
 		return db
 			.from('games')
-			.select('user_id', 'word_list')
+			.select('*')
 			.where('id', id)
 			.first();
 	},
-	getGameByUserId(db, userid) {
+	getGamesByUserId(db, userId) {
 		return db
 			.from('games')
 			.select('*')
-			.where('user_id', userid);
+			.where('user_id', userId);
 	},
+	// getSpecificGameByUserId(db, userId, gameId) {
+	// 	return db
+	// 		.from('games')
+	// 		.select('*')
+	// 		.where('user_id', userId);
+	// },
 	getGameByUsername(db, username) {
 		return db
 			.from('games')
