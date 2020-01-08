@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const GamesService = require('../games/games-service');
-// const { requireAuth } = require('../middleware/basic-auth');
 const { requireAuth } = require('../middleware/jwt-auth');
 
 const gamesRouter = express.Router();
@@ -11,7 +10,6 @@ gamesRouter
 	.route('/')
 	.all(requireAuth)
 	.get((req, res, next) => {
-		console.log(req.user.id);
 		GamesService.getGamesByUserId(
 			res.app.get('db'),
 			req.user.id
@@ -43,34 +41,30 @@ gamesRouter
 	.route('/:game_id')
 	.all(requireAuth)
 	.get((req, res, next) => {
-		GamesService.getGameByGameId(
-			res.app.get('db'),
-			req.params.game_id
-		).then(response => res.status(200).json(response));
+		GamesService.getGameByGameId(res.app.get('db'), req.params.game_id)
+			.then(game => {
+				if (!game) {
+					return res.status(404).json({ error: `Can't find game.` });
+				}
+				res.status(200).json(game);
+			})
+			.catch(next);
 	})
 	.delete((req, res, next) => {
 		GamesService.getGameByGameId(
+			//check if game exists
 			res.app.get('db'),
 			req.params.game_id
 		).then(game => {
-			console.log(req.user.id, req.user, game);
-			if (req.user.id != game.user_id) {
+			if (!game) {
 				return res.status(404).json({
 					error: `Can't find game.`
 				});
-			}
-			GamesService.deleteById(res.app.get('db'), req.params.game_id)
-				.then(numRowsAffected => {
-					res.status(204).end();
-				})
+			} //then go ahead and delete game
+			GamesService.deleteByGameId(res.app.get('db'), req.params.game_id)
+				.then(affectedGames => res.status(204).end())
 				.catch(next);
 		});
-
-		// GamesService.deleteById(res.app.get('db'), req.params.game_id)
-		// 	.then(numRowsAffected => {
-		// 		res.status(204).end();
-		// 	})
-		// 	.catch(next);
 	});
 
 module.exports = gamesRouter;

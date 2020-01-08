@@ -12,12 +12,6 @@ const GamesService = {
 			.select('*')
 			.where('user_id', userId);
 	},
-	// getSpecificGameByUserId(db, userId, gameId) {
-	// 	return db
-	// 		.from('games')
-	// 		.select('*')
-	// 		.where('user_id', userId);
-	// },
 	getGameByUsername(db, username) {
 		return db
 			.from('games')
@@ -25,17 +19,11 @@ const GamesService = {
 			.where('user_name', username)
 			.first();
 	},
-	deleteById(db, id) {
+	deleteByGameId(db, id) {
 		return db
 			.from('games')
 			.where({ id })
 			.delete();
-	},
-	updateGameById(db, id, newInfo) {
-		return db
-			.from('games')
-			.where('id', id)
-			.update(newInfo);
 	},
 	insertNewGame(db, newGame) {
 		return db
@@ -44,6 +32,12 @@ const GamesService = {
 			.returning('*')
 			.then(gamearray => gamearray[0]);
 	}
+	// updateGameById(db, id, newInfo) {
+	// 	return db
+	// 		.from('games')
+	// 		.where('id', id)
+	// 		.update(newInfo);
+	// }
 };
 
 module.exports = GamesService;

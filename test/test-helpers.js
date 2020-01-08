@@ -15,13 +15,15 @@ function makeUsersArray() {
 			id: 1,
 			user_name: 'nerd',
 			full_name: 'Word Nerd',
-			password: 'nerdpass'
+			password: 'nerdpass',
+			date_created: '2020-01-22T18:16:54.653Z'
 		},
 		{
 			id: 2,
 			user_name: 'dunder',
 			full_name: 'Dunder Mifflin',
-			password: 'dunderpass'
+			password: 'dunderpass',
+			date_created: '2020-01-22T18:16:54.653Z'
 		}
 	];
 }
@@ -42,7 +44,8 @@ function makeGamesArray(users) {
 				'black',
 				'white'
 			],
-			user_id: 1
+			user_id: 1,
+			date_created: '2020-01-22T18:16:54.653Z'
 		},
 		{
 			id: 2,
@@ -58,7 +61,8 @@ function makeGamesArray(users) {
 				'tiger',
 				'bear'
 			],
-			user_id: 1
+			user_id: 1,
+			date_created: '2020-01-22T18:16:54.653Z'
 		},
 		{
 			id: 3,
@@ -75,7 +79,8 @@ function makeGamesArray(users) {
 				'market',
 				'hospital'
 			],
-			user_id: 2
+			user_id: 2,
+			date_created: '2020-01-22T18:16:54.653Z'
 		}
 	];
 }
@@ -133,6 +138,25 @@ function cleanTables(db) {
 	);
 }
 
+function makeNewGame(userId) {
+	return {
+		id: 9999,
+		title: 'Weather',
+		word_list: ['rainy', 'snowy', 'sunny', 'windy', 'cloudy'],
+		user_id: userId,
+		date_created: '2020-01-22T18:16:54.653Z'
+	};
+}
+
+function makeNewGameMissingTitle(userId) {
+	return {
+		id: 9999,
+		word_list: ['rainy', 'snowy', 'sunny', 'windy', 'cloudy'],
+		user_id: userId,
+		date_created: '2020-01-22T18:16:54.653Z'
+	};
+}
+
 function makeGamesFixtures() {
 	const testUsers = makeUsersArray();
 	const testGames = makeGamesArray(testUsers); //should pass testUsers from above
@@ -146,5 +170,7 @@ module.exports = {
 	seedGamesTables,
 	cleanTables,
 	makeAuthHeader,
-	seedUsers
+	seedUsers,
+	makeNewGame,
+	makeNewGameMissingTitle
 };

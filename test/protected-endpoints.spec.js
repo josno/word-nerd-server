@@ -24,7 +24,7 @@ describe('Games Protected Endpoints', function() {
 		helpers.seedGamesTables(db, testUsers, testGames)
 	);
 
-	describe(`GET '/api/v1/games`, () => {
+	describe(`GET '/api/v1/games'`, () => {
 		it(`responds 401 'Missing bearer token' when no bearer token`, () => {
 			return supertest(app)
 				.get('/api/v1/games')
