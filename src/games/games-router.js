@@ -11,6 +11,7 @@ gamesRouter
 	.route('/')
 	.all(requireAuth)
 	.get((req, res, next) => {
+		console.log(req.user.id);
 		GamesService.getGamesByUserId(
 			res.app.get('db'),
 			req.user.id

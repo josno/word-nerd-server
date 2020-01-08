@@ -20,30 +20,91 @@ describe('Games Protected Endpoints', function() {
 
 	afterEach('cleanup', () => helpers.cleanTables(db));
 
-	beforeEach('insert test information', () => {
-		helpers.seedTestTables(db, testUsers, testGames);
+	beforeEach('insert users', () =>
+		helpers.seedGamesTables(db, testUsers, testGames)
+	);
+
+	describe(`GET '/api/v1/games`, () => {
+		it(`responds 401 'Missing bearer token' when no bearer token`, () => {
+			return supertest(app)
+				.get('/api/v1/games')
+				.expect(401, { error: `Missing bearer token` });
+		});
+
+		it(`responds with 401 'Unauthorized request' when user doesn't exist`, () => {
+			const invalidUser = { user_name: 'nonexistent', id: 4 };
+			return supertest(app)
+				.get('/api/v1/games')
+				.set('Authorization', helpers.makeAuthHeader(invalidUser))
+				.expect(401, { error: `Unauthorized request` });
+		});
+
+		it(`responds with 401 'Unauthorized request' when JWT is invalid`, () => {
+			const validUser = testUsers[0];
+			const invalidSecret = 'invalid-secret';
+			return supertest(app)
+				.get('/api/v1/games')
+				.set(
+					'Authorization',
+					helpers.makeAuthHeader(validUser, invalidSecret)
+				)
+				.expect(401, { error: `Unauthorized request` });
+		});
 	});
 
-	describe(`GET 'api/v1/games/`, () => {
-		context(`Given no words`, () => {
-			const user = { user_name: 'dunder', password: 'dunderpass' };
-			it(`responds with 200 and an empty list`, () => {
-				return supertest(app)
-					.get('/api/v1/games/')
-					.set('Authorization', helpers.makeAuthHeader(db, user))
-					.expect(200, []);
-			});
+	describe(`POST '/api/v1/games`, () => {
+		it(`responds 401 'Missing bearer token' when no bearer token`, () => {
+			return supertest(app)
+				.post('/api/v1/games')
+				.expect(401, { error: `Missing bearer token` });
+		});
 
-			it(`responds 401 'Missing basic token' when no basic token`, () => {
-				const missingTokenUser = { user_name: '', password: '' };
-				return supertest(app)
-					.get('api/v1/games/')
-					.set(
-						'Authorization',
-						helpers.makeAuthHeader(missingTokenUser)
-					)
-					.expect(401, { error: 'Missing basic token' });
-			});
+		it(`responds with 401 'Unauthorized request' when user doesn't exist`, () => {
+			const invalidUser = { user_name: 'nonexistent', id: 4 };
+			return supertest(app)
+				.post('/api/v1/games')
+				.set('Authorization', helpers.makeAuthHeader(invalidUser))
+				.expect(401, { error: `Unauthorized request` });
+		});
+
+		it(`responds with 401 'Unauthorized request' when JWT is invalid`, () => {
+			const validUser = testUsers[0];
+			const invalidSecret = 'invalid-secret';
+			return supertest(app)
+				.post('/api/v1/games')
+				.set(
+					'Authorization',
+					helpers.makeAuthHeader(validUser, invalidSecret)
+				)
+				.expect(401, { error: `Unauthorized request` });
+		});
+	});
+
+	describe(`GET '/api/v1/games/:game_id`, () => {
+		it(`responds 401 'Missing bearer token' when no bearer token`, () => {
+			return supertest(app)
+				.get('/api/v1/games/2')
+				.expect(401, { error: `Missing bearer token` });
+		});
+
+		it(`responds with 401 'Unauthorized request' when user doesn't exist`, () => {
+			const invalidUser = { user_name: 'nonexistent', id: 4 };
+			return supertest(app)
+				.get('/api/v1/games/2')
+				.set('Authorization', helpers.makeAuthHeader(invalidUser))
+				.expect(401, { error: `Unauthorized request` });
+		});
+
+		it(`responds with 401 'Unauthorized request' when JWT is invalid`, () => {
+			const validUser = testUsers[0];
+			const invalidSecret = 'invalid-secret';
+			return supertest(app)
+				.get('/api/v1/games/1')
+				.set(
+					'Authorization',
+					helpers.makeAuthHeader(validUser, invalidSecret)
+				)
+				.expect(401, { error: `Unauthorized request` });
 		});
 	});
 });

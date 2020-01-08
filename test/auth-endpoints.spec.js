@@ -25,7 +25,7 @@ describe('Auth Endpoints', function() {
 
 	beforeEach('insert users', () => helpers.seedUsers(db, testUsers));
 
-	describe.only(`POST /api/auth/login`, () => {
+	describe(`POST /api/auth/login`, () => {
 		const requiredFields = ['user_name', 'password'];
 
 		requiredFields.forEach(field => {
