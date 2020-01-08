@@ -7,7 +7,7 @@ CREATE TABLE users (
   date_modified TIMESTAMP
 );
 
-ALTER TABLE words
+ALTER TABLE games
   ADD COLUMN
     user_id INTEGER REFERENCES users(id)
     ON DELETE SET NULL;

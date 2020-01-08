@@ -2,16 +2,9 @@ const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe.only('Games Protected Endpoints', function() {
+describe('Games Protected Endpoints', function() {
 	let db;
 	const { testUsers, testGames } = helpers.makeGamesFixtures();
-
-	function makeAuthHeader(user) {
-		const token = Buffer.from(
-			`${user.user_name}:${user.password}`
-		).toString('base64');
-		return `Basic ${token}`;
-	}
 
 	before('make knex instance', () => {
 		db = knex({
@@ -37,7 +30,7 @@ describe.only('Games Protected Endpoints', function() {
 			it(`responds with 200 and an empty list`, () => {
 				return supertest(app)
 					.get('/api/v1/games/')
-					.set('Authorization', makeAuthHeader(user))
+					.set('Authorization', helpers.makeAuthHeader(db, user))
 					.expect(200, []);
 			});
 
@@ -45,17 +38,12 @@ describe.only('Games Protected Endpoints', function() {
 				const missingTokenUser = { user_name: '', password: '' };
 				return supertest(app)
 					.get('api/v1/games/')
-					.set('Authorization', makeAuthHeader(missingTokenUser))
+					.set(
+						'Authorization',
+						helpers.makeAuthHeader(missingTokenUser)
+					)
 					.expect(401, { error: 'Missing basic token' });
 			});
-
-			// it(`responds 401 'Unauthorized request' when no credentials in token`, () => {
-			// 	const userNoCreds = { user_name: '', password: '' };
-			// 	return endpoint
-			// 		.method(endpoint.path)
-			// 		.set('Authorization', helpers.makeAuthHeader(userNoCreds))
-			// 		.expect(401, { error: `Unauthorized request` });
-			// });
 		});
 	});
 });

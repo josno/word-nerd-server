@@ -1,7 +1,7 @@
 BEGIN;
 
 TRUNCATE
-    words, users
+    games, users
     RESTART IDENTITY CASCADE;
 
 INSERT INTO users (user_name, full_name, password)
@@ -10,7 +10,7 @@ VALUES
 ('dunder', 'Dunder Mifflin', '$2a$12$b2/aH8A.8RvOPqlRNDD/BejYZ70.D455AxV52EOsbALud6y2fyZCO' ),
 ('Bo', 'Bo Beep', '$2a$12$8fD9H7FUMwfw13diJno/f.olerFzVBo4UuZC/X/HOUggFADyv6MRK');
 
-INSERT INTO words (title, word_list, user_id)
+INSERT INTO games (title, word_list, user_id)
 VALUES 
 ('Colors', ARRAY['red', 'blue', 'pink', 'orange', 'green', 'purple', 'mint', 'black', 'white'], 1),
 ('Animals', ARRAY['bird', 'turtle', 'horse', 'fish', 'alligator', 'cheetah', 'lion', 'tiger', 'bear'], 1),

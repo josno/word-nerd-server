@@ -1,43 +1,43 @@
 const GamesService = {
 	getGames(db) {
-		return db.from('words').select('*');
+		return db.from('games').select('*');
 	},
 	getGameByGameId(db, id) {
 		return db
-			.from('words')
-			.select('word_list')
+			.from('games')
+			.select('user_id', 'word_list')
 			.where('id', id)
 			.first();
 	},
 	getGameByUserId(db, userid) {
 		return db
-			.from('words')
+			.from('games')
 			.select('*')
 			.where('user_id', userid);
 	},
 	getGameByUsername(db, username) {
 		return db
-			.from('words')
+			.from('games')
 			.select('*')
 			.where('user_name', username)
 			.first();
 	},
 	deleteById(db, id) {
 		return db
-			.from('words')
+			.from('games')
 			.where({ id })
 			.delete();
 	},
 	updateGameById(db, id, newInfo) {
 		return db
-			.from('words')
+			.from('games')
 			.where('id', id)
 			.update(newInfo);
 	},
 	insertNewGame(db, newGame) {
 		return db
 			.insert(newGame)
-			.into('words')
+			.into('games')
 			.returning('*')
 			.then(gamearray => gamearray[0]);
 	}

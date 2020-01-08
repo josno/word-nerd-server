@@ -1,8 +1,8 @@
 const express = require('express');
 const path = require('path');
 const GamesService = require('../games/games-service');
-const { requireAuth } = require('../middleware/basic-auth');
-// const { requireAuth } = require('../middleware/jwt-auth');
+// const { requireAuth } = require('../middleware/basic-auth');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const gamesRouter = express.Router();
 const jsonBodyParser = express.json();
@@ -46,6 +46,30 @@ gamesRouter
 			res.app.get('db'),
 			req.params.game_id
 		).then(response => res.status(200).json(response));
+	})
+	.delete((req, res, next) => {
+		GamesService.getGameByGameId(
+			res.app.get('db'),
+			req.params.game_id
+		).then(game => {
+			console.log(req.user.id, req.user, game);
+			if (req.user.id != game.user_id) {
+				return res.status(404).json({
+					error: `Can't find game.`
+				});
+			}
+			GamesService.deleteById(res.app.get('db'), req.params.game_id)
+				.then(numRowsAffected => {
+					res.status(204).end();
+				})
+				.catch(next);
+		});
+
+		// GamesService.deleteById(res.app.get('db'), req.params.game_id)
+		// 	.then(numRowsAffected => {
+		// 		res.status(204).end();
+		// 	})
+		// 	.catch(next);
 	});
 
 module.exports = gamesRouter;
