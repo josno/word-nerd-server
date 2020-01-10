@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/games', gamesRouter);
-app.use('/api/auth', authRouter);
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', usersRouter);
 
 app.use(function errorHandler(error, req, res, next) {

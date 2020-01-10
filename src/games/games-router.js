@@ -16,10 +16,16 @@ gamesRouter
 		).then(response => res.status(200).json(response));
 	})
 	.post(requireAuth, jsonBodyParser, (req, res, next) => {
-		const { title, word_list, date_created, user_id } = req.body;
+		const { title, word_list, date_created } = req.body;
 
 		//create new game object using the information from the request body
-		const newGame = { title, word_list, date_created, user_id };
+
+		const newGame = {
+			title,
+			word_list,
+			date_created,
+			user_id: req.user.id //middleware has req.user.id from auth include in newGame object
+		};
 
 		//checks that all required keys exist
 		for (const [key, value] of Object.entries(newGame))
@@ -56,11 +62,14 @@ gamesRouter
 			res.app.get('db'),
 			req.params.game_id
 		).then(game => {
-			if (!game) {
+			if (!game || game.user_id != req.user.id) {
 				return res.status(404).json({
 					error: `Can't find game.`
 				});
-			} //then go ahead and delete game
+			}
+			//if(game.user_id != req.user.id) - make a test for this for authorization
+			//check if requesting user matches DB user
+			//then go ahead and delete game
 			GamesService.deleteByGameId(res.app.get('db'), req.params.game_id)
 				.then(affectedGames => res.status(204).end())
 				.catch(next);
