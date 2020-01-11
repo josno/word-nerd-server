@@ -47,7 +47,7 @@ describe.only('Users Endpoints', function() {
 						});
 				});
 			});
-			it(`responds 400 'Password must be longer than 8 characters' when empty password`, () => {
+			it(`responds 400 'Password should be longer' when empty password`, () => {
 				const userShortPassword = {
 					user_name: 'test user_name',
 					password: '1234567',
@@ -59,6 +59,84 @@ describe.only('Users Endpoints', function() {
 					.expect(400, {
 						error: `Password should be longer.`
 					});
+			});
+
+			it(`responds 400 'Password must be less than 72 characters' when long password`, () => {
+				const userLongPass = {
+					user_name: 'test user_name',
+					password: '*'.repeat(73),
+					full_name: 'test full_name'
+				};
+
+				return supertest(app)
+					.post('/api/v1/users')
+					.send(userLongPass)
+					.expect(400, {
+						error: `Password must be less than 72 characters`
+					});
+			});
+
+			it(`responds 400 'Username is already taken', when user_name is duplicated`, () => {
+				const duplicatedUser = {
+					user_name: testUser.user_name,
+					password: 'blahblah',
+					full_name: 'test full_name'
+				};
+
+				return supertest(app)
+					.post('/api/v1/users')
+					.send(duplicatedUser)
+					.expect(400, { error: 'Username is already taken.' });
+			});
+		});
+
+		context(`Inserts new user credentials and inserts to database`, () => {
+			it(`responds 201, serialized user, storing bcryped password`, () => {
+				const newUser = {
+					user_name: 'test user_name',
+					password: '11AAaa!!',
+					full_name: 'test full_name'
+				};
+				return supertest(app)
+					.post('/api/v1/users')
+					.send(newUser)
+					.expect(201)
+					.expect(res => {
+						expect(res.body).to.have.property('id');
+						expect(res.body.user_name).to.eql(newUser.user_name);
+						expect(res.body.full_name).to.eql(newUser.full_name);
+						expect(res.body).to.not.have.property('password');
+						expect(res.headers.location).to.eql(
+							`/api/v1/users/${res.body.id}`
+						);
+						const expectedDate = new Date().toLocaleString('en', {
+							timeZone: 'UTC'
+						});
+						const actualDate = new Date(
+							res.body.date_created
+						).toLocaleString();
+						expect(actualDate).to.eql(expectedDate);
+					})
+					.expect(res =>
+						db
+							.from('users')
+							.select('*')
+							.where({ id: res.body.id })
+							.first()
+							.then(row => {
+								expect(row.user_name).to.eql(newUser.user_name);
+								expect(row.full_name).to.eql(newUser.full_name);
+								expect(row.nickname).to.eql(null);
+								const expectedDate = new Date().toLocaleString(
+									'en',
+									{ timeZone: 'UTC' }
+								);
+								const actualDate = new Date(
+									row.date_created
+								).toLocaleString();
+								expect(actualDate).to.eql(expectedDate);
+							})
+					);
 			});
 		});
 	});
