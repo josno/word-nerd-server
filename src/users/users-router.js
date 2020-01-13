@@ -23,22 +23,25 @@ usersRouter.post('/', jsonBodyParser, (req, res, next) => {
 					.status(400)
 					.json({ error: `Username is already taken.` });
 
-			const newUser = {
-				user_name,
-				password,
-				full_name,
-				date_created: 'now()'
-			};
+			return UsersService.hashPassword(password).then(hashedPassword => {
+				const newUser = {
+					user_name,
+					password: hashedPassword,
+					full_name,
+					date_created: 'now()'
+				};
 
-			return UsersService.insertUser(req.app.get('db'), newUser).then(
-				user => {
+				return UsersService.insertNewUser(
+					req.app.get('db'),
+					newUser
+				).then(user => {
 					res.status(201)
 						.location(
 							path.posix.join(req.originalUrl, `/${user.id}`)
 						)
 						.json(UsersService.serializeUser(user));
-				}
-			);
+				});
+			});
 		})
 		.catch(next);
 });

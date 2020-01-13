@@ -1,9 +1,9 @@
 const knex = require('knex');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe.only('Users Endpoints', function() {
+describe('Users Endpoints', function() {
 	let db;
 
 	const { testUsers } = helpers.makeGamesFixtures();
@@ -122,11 +122,12 @@ describe.only('Users Endpoints', function() {
 							.from('users')
 							.select('*')
 							.where({ id: res.body.id })
-							.first()
+							.first() /*return the first row*/
 							.then(row => {
+								/*'row' is returned entry*/
 								expect(row.user_name).to.eql(newUser.user_name);
 								expect(row.full_name).to.eql(newUser.full_name);
-								expect(row.nickname).to.eql(null);
+								expect(row.date_modified).to.eql(null);
 								const expectedDate = new Date().toLocaleString(
 									'en',
 									{ timeZone: 'UTC' }
@@ -135,6 +136,14 @@ describe.only('Users Endpoints', function() {
 									row.date_created
 								).toLocaleString();
 								expect(actualDate).to.eql(expectedDate);
+
+								return bcrypt.compare(
+									newUser.password,
+									row.password
+								);
+							})
+							.then(compareMatch => {
+								expect(compareMatch).to.be.true;
 							})
 					);
 			});

@@ -1,11 +1,12 @@
 const xss = require('xss');
+const bcrypt = require('bcryptjs');
 
 const UsersService = {
-	inserUser(db, newUser) {
+	insertNewUser(db, newUser) {
 		return db
 			.insert(newUser)
 			.into('users')
-			.return('*')
+			.returning('*')
 			.then(([user]) => user);
 	},
 	hasUserWithUserName(db, user_name) {
@@ -29,6 +30,9 @@ const UsersService = {
 			user_name: xss(user.user_name),
 			date_created: new Date(user.date_created)
 		};
+	},
+	hashPassword(password) {
+		return bcrypt.hash(password, 12);
 	}
 };
 

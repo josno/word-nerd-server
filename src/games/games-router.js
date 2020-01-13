@@ -38,7 +38,7 @@ gamesRouter
 			.then(game => {
 				res.status(201)
 					.location(path.posix.join(req.originalUrl, `/${game.id}`))
-					.json(game);
+					.json(GamesService.serializeGame(game));
 			})
 			.catch(next);
 	});

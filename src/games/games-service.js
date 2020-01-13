@@ -1,3 +1,5 @@
+const xss = require('xss');
+
 const GamesService = {
 	getGameByGameId(db, id) {
 		return db
@@ -31,13 +33,21 @@ const GamesService = {
 			.into('games')
 			.returning('*')
 			.then(gamearray => gamearray[0]);
-	}
+	},
 	// updateGameById(db, id, newInfo) {
 	// 	return db
 	// 		.from('games')
 	// 		.where('id', id)
 	// 		.update(newInfo);
-	// }
+	// },
+	serializeGame(game) {
+		return {
+			id: game.user_id,
+			title: xss(game.title),
+			word_list: xss(game.word_list),
+			date_created: new Date(game.date_created)
+		};
+	}
 };
 
 module.exports = GamesService;

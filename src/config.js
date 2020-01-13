@@ -4,5 +4,6 @@ module.exports = {
 	DB_URL:
 		process.env.DB_URL ||
 		'postgres://word_nerd_user@localhost:5432/word_nerd',
-	JWT_SECRET: process.env.JWT_SECRET || 'change-this-secret'
+	JWT_SECRET: process.env.JWT_SECRET || 'change-this-secret',
+	CLIENT_ORIGIN: 'http://localhost:3000'
 };

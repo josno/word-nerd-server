@@ -35,10 +35,10 @@ describe('Auth Endpoints', function() {
 			};
 
 			it(`responds with 400 required error when '${field}' is missing`, () => {
-				delete loginAttemptBody[field];
+				delete loginAttemptBody[field]; //deletes the specified field first; then test
 
 				return supertest(app)
-					.post('/api/auth/login')
+					.post('/api/v1/auth/login')
 					.send(loginAttemptBody)
 					.expect(400, {
 						error: `Missing '${field}' in request body`
@@ -52,7 +52,7 @@ describe('Auth Endpoints', function() {
 				password: 'existy'
 			};
 			return supertest(app)
-				.post('/api/auth/login')
+				.post('/api/v1/auth/login')
 				.send(userInvalidUser)
 				.expect(400, { error: `Incorrect user_name or password` });
 		});
@@ -63,7 +63,7 @@ describe('Auth Endpoints', function() {
 				password: 'incorrect'
 			};
 			return supertest(app)
-				.post('/api/auth/login')
+				.post('/api/v1/auth/login')
 				.send(userInvalidPass)
 				.expect(400, { error: `Incorrect user_name or password` });
 		});
@@ -82,7 +82,7 @@ describe('Auth Endpoints', function() {
 				}
 			);
 			return supertest(app)
-				.post('/api/auth/login')
+				.post('/api/v1/auth/login')
 				.send(userValidCreds)
 				.expect(200, {
 					authToken: expectedToken

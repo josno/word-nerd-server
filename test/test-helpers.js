@@ -138,21 +138,10 @@ function cleanTables(db) {
 	);
 }
 
-function makeNewGame(userId) {
+function makeNewGame() {
 	return {
-		id: 9999,
 		title: 'Weather',
 		word_list: ['rainy', 'snowy', 'sunny', 'windy', 'cloudy'],
-		user_id: userId,
-		date_created: '2020-01-22T18:16:54.653Z'
-	};
-}
-
-function makeNewGameMissingTitle(userId) {
-	return {
-		id: 9999,
-		word_list: ['rainy', 'snowy', 'sunny', 'windy', 'cloudy'],
-		user_id: userId,
 		date_created: '2020-01-22T18:16:54.653Z'
 	};
 }
@@ -171,6 +160,5 @@ module.exports = {
 	cleanTables,
 	makeAuthHeader,
 	seedUsers,
-	makeNewGame,
-	makeNewGameMissingTitle
+	makeNewGame
 };
