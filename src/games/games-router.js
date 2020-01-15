@@ -36,9 +36,10 @@ gamesRouter
 
 		GamesService.insertNewGame(req.app.get('db'), newGame)
 			.then(game => {
+				console.log(game);
 				res.status(201)
 					.location(path.posix.join(req.originalUrl, `/${game.id}`))
-					.json(GamesService.serializeGame(game));
+					.json(game);
 			})
 			.catch(next);
 	});
@@ -61,19 +62,49 @@ gamesRouter
 			//check if game exists
 			res.app.get('db'),
 			req.params.game_id
-		).then(game => {
-			if (!game || game.user_id != req.user.id) {
-				return res.status(404).json({
-					error: `Can't find game.`
+		)
+			.then(game => {
+				if (!game || game.user_id != req.user.id) {
+					return res.status(404).json({
+						error: `Can't find game.`
+					});
+				}
+
+				GamesService.deleteByGameId(
+					res.app.get('db'),
+					req.params.game_id
+				).then(affectedGames => res.status(204).end());
+			})
+			.catch(next);
+	})
+	.patch(jsonBodyParser, (req, res, next) => {
+		const { title, word_list } = req.body;
+		console.log(req.params.game_id);
+
+		const gameToUpdate = {
+			title: title,
+			word_list: word_list,
+			user_id: req.user.id
+		};
+
+		for (const [key, value] of Object.entries(gameToUpdate))
+			if (value == null)
+				return res.status(400).json({
+					error: `Missing '${key}' in request body`
 				});
-			}
-			//if(game.user_id != req.user.id) - make a test for this for authorization
-			//check if requesting user matches DB user
-			//then go ahead and delete game
-			GamesService.deleteByGameId(res.app.get('db'), req.params.game_id)
-				.then(affectedGames => res.status(204).end())
-				.catch(next);
-		});
+
+		GamesService.updateGameById(
+			req.app.get('db'),
+			req.params.game_id,
+			gameToUpdate
+		)
+			.then(rowsAffected => {
+				if (!rowsAffected) {
+					res.status(400).json({ error: `Can't find game.` });
+				}
+				res.status(204).end();
+			})
+			.catch(next);
 	});
 
 module.exports = gamesRouter;

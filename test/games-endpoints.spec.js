@@ -1,5 +1,4 @@
 const knex = require('knex');
-const jwt = require('jsonwebtoken');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
@@ -53,28 +52,7 @@ describe('Games Endpoints', function() {
 	});
 
 	describe(`POST '/api/v1/games'`, () => {
-		// context(`Given there's malicious content`, () => {
-		// 	const badGame = {
-		// 		title: 'naughty <script>alert("xss");</script>',
-		// 		word_list: ['this', 'is', 'a', 'badscript'],
-		// 		date_created: new Date()
-		// 	};
-
-		// 	const cleanGame = {
-		// 		title: 'naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
-		// 		word_list: ['this', 'is', 'a', 'badscript'],
-		// 		date_create: new Date()
-		// 	};
-
-		// 	it(`Scrubs content and submits a clean game`, () => {
-		// 		return supertest(app)
-		// 			.post('/api/v1/games')
-		// 			.set('Authorization', helpers.makeAuthHeader(testUser))
-		// 			.send(badGame);
-		// });
-		// });
-
-		context.only(`Given there is data in the games tables`, () => {
+		context(`Given there is data in the games tables`, () => {
 			beforeEach('insert tables', () =>
 				helpers.seedGamesTables(db, testUsers, testGames)
 			);
@@ -82,19 +60,19 @@ describe('Games Endpoints', function() {
 			const requiredFields = ['title', 'word_list', 'date_created'];
 
 			requiredFields.forEach(field => {
-				const loginAttemptBody = {
+				const newGameAttemptBody = {
 					title: testGame.title,
 					word_list: testGame.word_list,
 					date_created: testGame.date_created
 				};
 
 				it(`responds with 400 required error when '${field}' is missing`, () => {
-					delete loginAttemptBody[field]; //deletes the specified field first; then test
+					delete newGameAttemptBody[field]; //deletes the specified field first; then test
 
 					return supertest(app)
 						.post('/api/v1/games')
 						.set('Authorization', helpers.makeAuthHeader(testUser))
-						.send(loginAttemptBody)
+						.send(newGameAttemptBody)
 						.expect(400, {
 							error: `Missing '${field}' in request body`
 						});
@@ -114,16 +92,11 @@ describe('Games Endpoints', function() {
 						expect(res.body).to.have.property('id');
 						expect(reqUserId).to.deep.eql(testUser.id);
 						expect(res.body.title).to.eql(newGame.title);
-						expect(res.body.word_list).to.be.a('string');
-						expect(res.body.word_list).to.eql(
-							String(newGame.word_list)
-						);
+						expect(res.body.word_list).to.be.an('array');
+						expect(res.body.word_list).to.eql(newGame.word_list);
 						expect(res.body.date_created).to.eql(
 							newGame.date_created
 						);
-						// expect(res.headers.location).to.eql(
-						// 	`/api/v1/games/${res.body.id}`
-						// ); //does not equal
 					});
 			});
 		});
@@ -141,7 +114,7 @@ describe('Games Endpoints', function() {
 			});
 		});
 
-		context.only('Given there are games in database', () => {
+		context('Given there are games in database', () => {
 			beforeEach('insert Tables', () =>
 				helpers.seedGamesTables(db, testUsers, testGames)
 			);
@@ -215,6 +188,88 @@ describe('Games Endpoints', function() {
 					.get(`/api/v1/games/${testGameId}`)
 					.set('Authorization', helpers.makeAuthHeader(testUser))
 					.expect(200, expectedGame);
+			});
+		});
+	});
+
+	describe(`PATCH '/api/v1/games/:gameId' `, () => {
+		const updateGameId = 2;
+
+		const gameToUpdate = {
+			title: 'Changed Countries',
+			word_list: [
+				'changed United Kingdom',
+				'changed Spain',
+				'changed France',
+				'changed Germany',
+				'changed Greece',
+				'changed Austria',
+				'changed Vienna'
+			],
+			id: 2
+		};
+
+		context(`Given no games`, () => {
+			/*for authorization; check if user is in table*/
+			beforeEach('insert users tables', () =>
+				helpers.seedUsers(db, testUsers)
+			);
+
+			it(`Responds with 400 'Can't find game.'`, () => {
+				return supertest(app)
+					.patch(`/api/v1/games/${updateGameId}`)
+					.set('Authorization', helpers.makeAuthHeader(testUser))
+					.send(gameToUpdate)
+					.expect(400, { error: `Can't find game.` });
+			});
+		});
+
+		context(`Given there are games in the database`, () => {
+			beforeEach('insert tables', () =>
+				helpers.seedGamesTables(db, testUsers, testGames)
+			);
+
+			const requiredFields = ['title', 'word_list'];
+
+			requiredFields.forEach(field => {
+				const patchedGame = {
+					title: gameToUpdate.title,
+					word_list: gameToUpdate.word_list
+				};
+
+				it(`Responds with 400 required error when '${field}' is missing`, () => {
+					delete patchedGame[field]; //deletes the specified field first; then test
+
+					return supertest(app)
+						.patch(`/api/v1/games/${updateGameId}`)
+						.set('Authorization', helpers.makeAuthHeader(testUser))
+						.send(patchedGame)
+						.expect(400, {
+							error: `Missing '${field}' in request body`
+						});
+				});
+			});
+
+			it(`responds 204 with updated game`, () => {
+				const expectedGame = {
+					...testGames[updateGameId - 1],
+					...gameToUpdate
+				};
+
+				return supertest(app)
+					.patch(`/api/v1/games/${updateGameId}`)
+					.set('Authorization', helpers.makeAuthHeader(testUser))
+					.send(gameToUpdate)
+					.expect(204)
+					.then(response => {
+						supertest(app)
+							.get(`/api/v1/games/${updateGameId}`)
+							.set(
+								'Authorization',
+								helpers.makeAuthHeader(testUser)
+							)
+							.expect(200, expectedGame);
+					});
 			});
 		});
 	});
