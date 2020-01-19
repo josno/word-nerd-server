@@ -8,11 +8,6 @@ const AuthService = {
 			.where({ user_name })
 			.first();
 	},
-	parseBasicToken(token) {
-		return Buffer.from(token, 'base64')
-			.toString()
-			.split(':');
-	},
 	comparePasswords(password, hash) {
 		return bcrypt.compare(password, hash);
 	},
@@ -26,11 +21,6 @@ const AuthService = {
 		return jwt.verify(token, config.JWT_SECRET, {
 			algorithms: ['HS256']
 		});
-	},
-	parseBasicToken(token) {
-		return Buffer.from(token, 'base64')
-			.toString()
-			.split(':');
 	}
 };
 

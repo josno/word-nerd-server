@@ -18,13 +18,12 @@ gamesRouter
 	.post(requireAuth, jsonBodyParser, (req, res, next) => {
 		const { title, word_list, date_created } = req.body;
 
-		//create new game object using the information from the request body
-
 		const newGame = {
 			title,
 			word_list,
 			date_created,
-			user_id: req.user.id //middleware has req.user.id from auth include in newGame object
+			//middleware has req.user.id from auth include in newGame object
+			user_id: req.user.id
 		};
 
 		//checks that all required keys exist
@@ -36,7 +35,6 @@ gamesRouter
 
 		GamesService.insertNewGame(req.app.get('db'), newGame)
 			.then(game => {
-				console.log(game);
 				res.status(201)
 					.location(path.posix.join(req.originalUrl, `/${game.id}`))
 					.json(game);
@@ -64,6 +62,7 @@ gamesRouter
 			req.params.game_id
 		)
 			.then(game => {
+				//if there is no game || game user id in db is not the user id in the request body
 				if (!game || game.user_id != req.user.id) {
 					return res.status(404).json({
 						error: `Can't find game.`
@@ -79,12 +78,13 @@ gamesRouter
 	})
 	.patch(jsonBodyParser, (req, res, next) => {
 		const { title, word_list } = req.body;
-		console.log(req.params.game_id);
 
 		const gameToUpdate = {
 			title: title,
 			word_list: word_list,
-			user_id: req.user.id
+			user_id: req.user.id,
+			id: req.params.game_id
+			//Must pass the validated user with token check
 		};
 
 		for (const [key, value] of Object.entries(gameToUpdate))
@@ -92,17 +92,29 @@ gamesRouter
 				return res.status(400).json({
 					error: `Missing '${key}' in request body`
 				});
-
-		GamesService.updateGameById(
-			req.app.get('db'),
-			req.params.game_id,
-			gameToUpdate
+		GamesService.getGameByGameId(
+			//check if game exists
+			res.app.get('db'),
+			req.params.game_id
 		)
-			.then(rowsAffected => {
-				if (!rowsAffected) {
-					res.status(400).json({ error: `Can't find game.` });
+			.then(game => {
+				//if there is no game || game user id in db is not the user id in the request body
+				if (!game || game.user_id != req.user.id) {
+					return res.status(400).json({
+						error: `Can't find game.`
+					});
 				}
-				res.status(204).end();
+
+				GamesService.updateGameById(
+					req.app.get('db'),
+					req.params.game_id,
+					gameToUpdate
+				).then(rowsAffected => {
+					if (!rowsAffected) {
+						res.status(400).json({ error: `Can't find game.` });
+					}
+					res.status(204).end();
+				});
 			})
 			.catch(next);
 	});

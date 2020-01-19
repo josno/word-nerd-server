@@ -12,13 +12,6 @@ const GamesService = {
 			.select('*')
 			.where('user_id', userId);
 	},
-	getGameByUsername(db, username) {
-		return db
-			.from('games')
-			.select('*')
-			.where('user_name', username)
-			.first();
-	},
 	deleteByGameId(db, id) {
 		return db
 			.from('games')
