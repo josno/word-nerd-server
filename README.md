@@ -21,10 +21,8 @@ Javascript, Node, Express, Knex, PostgreSQL
     -   full_name
     -   user_name
     -   password
--   Response Status
+-   Sucessful Response Status
     -   201 Created
--   Error Status
-    -   400 Bad Request
 
 ## How To Use By Endpoints
 
@@ -37,25 +35,20 @@ Javascript, Node, Express, Knex, PostgreSQL
 -   Request Body
     -   user_name
     -   password
--   Response Status
+-   Sucessful Response Status
     -   201 Created
--   Error Status
-    -   400 Bad Request
 
 ```
 /api/v1/games
 ```
 
-### Method: POST '/'
+### Method: POST '/login'
 
 -   Request Body
-    -   title
-    -   word_list
-    -   date_created
--   Response Status
+    -   user_name
+    -   password
+-   Sucessful Response Status
     -   201 Created
--   Error Status
-    -   400 Bad Request
 
 ```
 /api/v1/games
@@ -65,7 +58,43 @@ Javascript, Node, Express, Knex, PostgreSQL
 
 -   Request Body
     -   none required
--   Response Status
-    -   200 Created
--   Error Status
-    -   400 Bad Request
+-   Sucessful Response Status
+    -   200
+
+### Method: POST '/'
+
+-   Request Body
+    -   title
+    -   word_list
+-   Sucessful Response Status
+    -   201 Created
+
+```
+/api/v1/games
+```
+
+### Method: GET '/:game_id'
+
+-   Request Body
+    -   game_id (in request params)
+-   Sucessful Response Status
+    -   200 OK
+
+### Method: DELETE '/:game_id'
+
+-   Request Body
+    -   game_id (in request params)
+-   Sucessful Response Status
+    -   204 No Content
+
+### Method: PATCH '/:game_id'
+
+-   Request Body
+
+    -   title
+    -   word_list
+    -   game_id (in request params)
+    -   user_id (in req.user set by auth)
+
+-   Sucessful Response Status
+    -   204 No Content
