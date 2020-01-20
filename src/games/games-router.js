@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const GamesService = require('../games/games-service');
 const { requireAuth } = require('../middleware/jwt-auth');
-
 const gamesRouter = express.Router();
 const jsonBodyParser = express.json();
 
@@ -15,7 +14,7 @@ gamesRouter
 			req.user.id
 		).then(response => res.status(200).json(response));
 	})
-	.post(requireAuth, jsonBodyParser, (req, res, next) => {
+	.post(jsonBodyParser, (req, res, next) => {
 		const { title, word_list, date_created } = req.body;
 
 		const newGame = {

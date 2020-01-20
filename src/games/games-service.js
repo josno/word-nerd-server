@@ -1,3 +1,5 @@
+const xss = require('xss');
+
 const GamesService = {
 	getGameByGameId(db, id) {
 		return db
