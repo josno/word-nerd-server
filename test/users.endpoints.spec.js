@@ -88,32 +88,46 @@ describe('Users Endpoints', function() {
 					.send(duplicatedUser)
 					.expect(400, { error: 'Username is already taken.' });
 			});
+
+			it(`check`, () => {
+				const badUsername = {
+					user_name: 'testuser space',
+					password: 'blahblah',
+					full_name: 'test full_name'
+				};
+
+				return supertest(app)
+					.post('/api/v1/users')
+					.send(badUsername)
+					.expect(400, { error: 'Username cannot have spaces.' });
+			});
 		});
 
 		context(`Inserts new user credentials and inserts to database`, () => {
 			it(`responds 201, serialized user, storing bcryped password`, () => {
 				const newUser = {
-					user_name: 'test user_name',
+					user_name: 'testuser_name',
 					password: '11AAaa!!',
 					full_name: 'test full_name'
 				};
+
 				return supertest(app)
 					.post('/api/v1/users')
 					.send(newUser)
 					.expect(201)
 					.expect(res => {
-						expect(res.body).to.have.property('id');
-						expect(res.body.user_name).to.eql(newUser.user_name);
-						expect(res.body.full_name).to.eql(newUser.full_name);
-						expect(res.body).to.not.have.property('password');
-						expect(res.headers.location).to.eql(
-							`/api/v1/users/${res.body.id}`
+						expect(res.body.user.user_name).to.eql(
+							newUser.user_name
 						);
+						expect(res.body.user.full_name).to.eql(
+							newUser.full_name
+						);
+						expect(res.body).to.not.have.property('password');
 						const expectedDate = new Date().toLocaleString('en', {
 							timeZone: 'UTC'
 						});
 						const actualDate = new Date(
-							res.body.date_created
+							res.body.user.date_created
 						).toLocaleString();
 						expect(actualDate).to.eql(expectedDate);
 					})
@@ -121,7 +135,7 @@ describe('Users Endpoints', function() {
 						db
 							.from('users')
 							.select('*')
-							.where({ id: res.body.id })
+							.where({ id: res.body.user.id })
 							.first() /*return the first row*/
 							.then(row => {
 								/*'row' is returned entry*/

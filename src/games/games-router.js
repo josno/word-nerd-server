@@ -32,6 +32,20 @@ gamesRouter
 					error: `Missing '${key}' in request body`
 				});
 
+		const invalidWordList = word_list.toString().match(/[^a-zA-Z,\s]/g);
+		if (invalidWordList) {
+			return res.status(400).json({
+				error: `Cannot contain numbers or special characters.`
+			});
+		}
+
+		const invalidTitle = title.toString().match(/[^a-zA-Z,\s]/g);
+		if (invalidTitle) {
+			return res.status(400).json({
+				error: `Cannot contain numbers or special characters.`
+			});
+		}
+
 		GamesService.insertNewGame(req.app.get('db'), newGame)
 			.then(game => {
 				res.status(201)

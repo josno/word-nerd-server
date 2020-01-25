@@ -23,6 +23,13 @@ const UsersService = {
 			return 'Password must be less than 72 characters';
 		}
 	},
+	validateUsername(username) {
+		const invalidUsername = username.includes(' ');
+
+		if (invalidUsername) {
+			return `Username cannot have spaces.`;
+		}
+	},
 	serializeUser(user) {
 		return {
 			id: user.id,

@@ -12,9 +12,9 @@ const app = express();
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
 
 app.use(morgan(morganOption));
-app.options('*', cors());
-// app.use(cors());
-app.use(cors({ origin: CLIENT_ORIGIN }));
+// app.options('*', cors());
+app.use(cors());
+// app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(helmet());
 
 app.get('/', (req, res) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const UsersService = require('../users/users-service');
+const AuthService = require('../auth/auth-service');
 const usersRouter = express.Router();
 const jsonBodyParser = express.json();
 
@@ -16,8 +17,10 @@ usersRouter.post('/', jsonBodyParser, (req, res, next) => {
 			});
 
 	const passwordError = UsersService.validatePassword(password);
-
 	if (passwordError) return res.status(400).json({ error: passwordError });
+
+	const usernameError = UsersService.validateUsername(user_name);
+	if (usernameError) return res.status(400).json({ error: usernameError });
 
 	UsersService.hasUserWithUserName(req.app.get('db'), user_name)
 		.then(user => {
@@ -38,11 +41,12 @@ usersRouter.post('/', jsonBodyParser, (req, res, next) => {
 					req.app.get('db'),
 					newUser
 				).then(user => {
-					res.status(201)
-						.location(
-							path.posix.join(req.originalUrl, `/${user.id}`)
-						)
-						.json(UsersService.serializeUser(user));
+					const sub = user.user_name;
+					const payload = { user_id: user.id };
+					res.status(201).send({
+						user: user,
+						authToken: AuthService.createJwt(sub, payload)
+					});
 				});
 			});
 		})

@@ -79,6 +79,43 @@ describe('Games Endpoints', function() {
 				});
 			});
 
+			it(`responds with 400 for word_list 'Cannot contain numbers or special characters.' `, () => {
+				const newGameAttemptBody = {
+					title: testGame.title,
+					word_list: [
+						'changed(*(Spain',
+						'changed8789098France',
+						'903242',
+						'#*@$)(@*)$'
+					],
+					date_created: testGame.date_created
+				};
+
+				return supertest(app)
+					.post('/api/v1/games')
+					.set('Authorization', helpers.makeAuthHeader(testUser))
+					.send(newGameAttemptBody)
+					.expect(400, {
+						error: `Cannot contain numbers or special characters.`
+					});
+			});
+
+			it(`responds with 400 for title 'Cannot contain numbers or special characters.' `, () => {
+				const newGameAttemptBody = {
+					title: 'Bad980934',
+					word_list: testGame.word_list,
+					date_created: testGame.date_created
+				};
+
+				return supertest(app)
+					.post('/api/v1/games')
+					.set('Authorization', helpers.makeAuthHeader(testUser))
+					.send(newGameAttemptBody)
+					.expect(400, {
+						error: `Cannot contain numbers or special characters.`
+					});
+			});
+
 			it('responds 201 with created content', () => {
 				const newGame = helpers.makeNewGame();
 				/*set user_id because we check against req.body user_id with the jwt token*/
@@ -200,11 +237,7 @@ describe('Games Endpoints', function() {
 			word_list: [
 				'changed United Kingdom',
 				'changed Spain',
-				'changed France',
-				'changed Germany',
-				'changed Greece',
-				'changed Austria',
-				'changed Vienna'
+				'changed France'
 			],
 			id: 2
 		};
@@ -250,7 +283,7 @@ describe('Games Endpoints', function() {
 				});
 			});
 
-			it(`responds 204 with updated game`, () => {
+			it(`responds 204 No Content with updated game`, () => {
 				const expectedGame = {
 					...testGames[updateGameId - 1],
 					...gameToUpdate
@@ -270,6 +303,10 @@ describe('Games Endpoints', function() {
 							)
 							.expect(200, expectedGame);
 					});
+			});
+
+			it('responds 400 with `Words cannot have special charactes or numbers.`', () => {
+				//comment
 			});
 		});
 	});
