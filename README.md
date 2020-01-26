@@ -1,4 +1,4 @@
-![Home Page](/images/word-nerd-img.png)
+![Home Page](/assets/word-nerd-img.png)
 
 # Word Nerd Server
 
