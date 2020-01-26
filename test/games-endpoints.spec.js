@@ -352,8 +352,24 @@ describe('Games Endpoints', function() {
 					});
 			});
 
-			it('responds 400 with `Words cannot have special charactes or numbers.`', () => {
-				//comment
+			it(`responds with 400 for word_list 'Cannot contain numbers or special characters.' `, () => {
+				const patchedGameAttemptBody = {
+					title: gameToUpdate.title,
+					word_list: [
+						'changed(*(Spain',
+						'changed8789098France',
+						'903242',
+						'#*@$)(@*)$'
+					]
+				};
+
+				return supertest(app)
+					.patch(`/api/v1/games/${updateGameId}`)
+					.set('Authorization', helpers.makeAuthHeader(testUser))
+					.send(patchedGameAttemptBody)
+					.expect(400, {
+						error: `Cannot contain numbers or special characters.`
+					});
 			});
 		});
 	});

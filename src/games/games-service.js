@@ -41,7 +41,7 @@ const GamesService = {
 			user_id: game.user_id,
 			word_list: formattedArray,
 			title: xss(game.title),
-			date_created: new Date(game.date_created)
+			date_created: game.date_created
 		};
 	}
 };

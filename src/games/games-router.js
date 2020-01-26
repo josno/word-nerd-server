@@ -102,6 +102,17 @@ gamesRouter
 				return res.status(400).json({
 					error: `Missing '${key}' in request body`
 				});
+
+		const invalidWordList = word_list
+			.toString()
+			.match(/[0-9\[\^\$\.\|\?\*\+\(\)\{\}]/g);
+
+		if (invalidWordList) {
+			return res.status(400).json({
+				error: `Cannot contain numbers or special characters.`
+			});
+		}
+
 		GamesService.getGameByGameId(
 			//check if game exists
 			res.app.get('db'),
