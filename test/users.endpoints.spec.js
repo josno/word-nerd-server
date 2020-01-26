@@ -47,7 +47,8 @@ describe('Users Endpoints', function() {
 						});
 				});
 			});
-			it(`responds 400 'Password should be longer' when empty password`, () => {
+
+			it(`responds 400 'Password should be longer' when password is short`, () => {
 				const userShortPassword = {
 					user_name: 'test user_name',
 					password: '1234567',
@@ -89,7 +90,7 @@ describe('Users Endpoints', function() {
 					.expect(400, { error: 'Username is already taken.' });
 			});
 
-			it(`check`, () => {
+			it(`respond 400 'Username cannot have spaces' when username is formatted incorrectly`, () => {
 				const badUsername = {
 					user_name: 'testuser space',
 					password: 'blahblah',
@@ -100,6 +101,28 @@ describe('Users Endpoints', function() {
 					.post('/api/v1/users')
 					.send(badUsername)
 					.expect(400, { error: 'Username cannot have spaces.' });
+			});
+		});
+
+		context('Given an xss attack', () => {
+			it('removes xss from the response body', () => {
+				const maliciousUser = {
+					user_name: '<script>badusername</script>',
+					full_name: 'user <script>name</script>',
+					password: '<script>password</script>'
+				};
+
+				return supertest(app)
+					.post('/api/v1/users')
+					.send(maliciousUser)
+					.expect(res => {
+						expect(res.body.user.user_name).to.eql(
+							'&lt;script&gt;badusername&lt;/script&gt;'
+						);
+						expect(res.body.user.full_name).to.eql(
+							'user &lt;script&gt;name&lt;/script&gt;'
+						);
+					});
 			});
 		});
 

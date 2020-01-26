@@ -32,6 +32,17 @@ const GamesService = {
 			.from('games')
 			.where('id', id)
 			.update(newInfo);
+	},
+	serializeGame(game) {
+		const serializedList = xss([game.word_list]);
+		const formattedArray = serializedList.split(',');
+		return {
+			id: game.id,
+			user_id: game.user_id,
+			word_list: formattedArray,
+			title: xss(game.title),
+			date_created: new Date(game.date_created)
+		};
 	}
 };
 

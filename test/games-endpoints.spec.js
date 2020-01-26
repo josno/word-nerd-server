@@ -100,19 +100,31 @@ describe('Games Endpoints', function() {
 					});
 			});
 
-			it(`responds with 400 for title 'Cannot contain numbers or special characters.' `, () => {
-				const newGameAttemptBody = {
-					title: 'Bad980934',
-					word_list: testGame.word_list,
+			it('removes xss from the response body', () => {
+				const maliciousGame = {
+					title: '<script>Colors</script>',
+					word_list: [
+						'malicious',
+						'game',
+						'wor<script></script>dlist'
+					],
 					date_created: testGame.date_created
 				};
 
 				return supertest(app)
 					.post('/api/v1/games')
 					.set('Authorization', helpers.makeAuthHeader(testUser))
-					.send(newGameAttemptBody)
-					.expect(400, {
-						error: `Cannot contain numbers or special characters.`
+					.send(maliciousGame)
+					.expect(res => {
+						expect(res.body.title).to.eql(
+							'&lt;script&gt;Colors&lt;/script&gt;'
+						);
+						expect(res.body.word_list).to.be.an('array');
+						expect(res.body.word_list).to.eql([
+							'malicious',
+							'game',
+							'wor&lt;script&gt;&lt;/script&gt;dlist'
+						]);
 					});
 			});
 
@@ -137,6 +149,8 @@ describe('Games Endpoints', function() {
 					});
 			});
 		});
+
+		context(`Given there is an XSS attack`, () => {});
 	});
 
 	describe(`DELETE '/api/v1/games/:gameId'`, () => {
@@ -225,6 +239,39 @@ describe('Games Endpoints', function() {
 					.get(`/api/v1/games/${testGameId}`)
 					.set('Authorization', helpers.makeAuthHeader(testUser))
 					.expect(200, expectedGame);
+			});
+		});
+
+		context(`Given there is an XSS attack game content`, () => {
+			const maliciousGame = helpers.makeMaliciousGameArray();
+
+			beforeEach('insert tables', () =>
+				helpers.seedGamesTables(db, testUsers, maliciousGame)
+			);
+
+			it('removes XSS attack content', () => {
+				const maliciousGameId = 1;
+				return supertest(app)
+					.get(`/api/v1/games/${maliciousGameId}`)
+					.set('Authorization', helpers.makeAuthHeader(testUser))
+					.expect(200)
+					.expect(res => {
+						expect(res.body.title).to.eql(
+							'&lt;script&gt;Colors&lt;/script&gt;'
+						);
+						expect(res.body.word_list).to.be.an('array');
+						expect(res.body.word_list).to.eql([
+							'&lt;script&gt;red&lt;/script&gt;',
+							'blue',
+							'pink',
+							'orange',
+							'&lt;script&gt;green&lt;/script&gt;',
+							'purple',
+							'mint',
+							'black',
+							'white'
+						]);
+					});
 			});
 		});
 	});

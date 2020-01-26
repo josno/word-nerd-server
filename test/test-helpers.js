@@ -6,6 +6,7 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
 		subject: user.user_name,
 		algorithm: 'HS256'
 	});
+
 	return `Bearer ${token}`;
 }
 
@@ -85,6 +86,28 @@ function makeGamesArray(users) {
 	];
 }
 
+function makeMaliciousGameArray(users) {
+	return [
+		{
+			id: 1,
+			title: '<script>Colors</script>',
+			word_list: [
+				'<script>red</script>',
+				'blue',
+				'pink',
+				'orange',
+				'<script>green</script>',
+				'purple',
+				'mint',
+				'black',
+				'white'
+			],
+			user_id: 1,
+			date_created: '2020-01-22T18:16:54.653Z'
+		}
+	];
+}
+
 function seedGamesTables(db, users, games) {
 	// use a transaction to group the queries and auto rollback on any failure
 	return db.transaction(async trx => {
@@ -146,6 +169,12 @@ function makeNewGame() {
 	};
 }
 
+function makeMaliciousGamesFixtures() {
+	const testUsers = makeUsersArray();
+	const testGames = makeMaliciousGamesArray(testUsers); //should pass testUsers from above
+	return { testUsers, testGames };
+}
+
 function makeGamesFixtures() {
 	const testUsers = makeUsersArray();
 	const testGames = makeGamesArray(testUsers); //should pass testUsers from above
@@ -160,5 +189,7 @@ module.exports = {
 	cleanTables,
 	makeAuthHeader,
 	seedUsers,
-	makeNewGame
+	makeNewGame,
+	makeMaliciousGamesFixtures,
+	makeMaliciousGameArray
 };

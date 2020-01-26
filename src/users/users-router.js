@@ -37,17 +37,20 @@ usersRouter.post('/', jsonBodyParser, (req, res, next) => {
 					date_created: 'now()'
 				};
 
-				return UsersService.insertNewUser(
-					req.app.get('db'),
-					newUser
-				).then(user => {
-					const sub = user.user_name;
-					const payload = { user_id: user.id };
-					res.status(201).send({
-						user: user,
-						authToken: AuthService.createJwt(sub, payload)
+				return UsersService.insertNewUser(req.app.get('db'), newUser)
+					.then(user => {
+						return (serializedUser = UsersService.serializeUser(
+							user
+						));
+					})
+					.then(serializedUser => {
+						const sub = serializedUser.user_name;
+						const payload = { user_id: serializedUser.id };
+						res.status(201).send({
+							user: serializedUser,
+							authToken: AuthService.createJwt(sub, payload)
+						});
 					});
-				});
 			});
 		})
 		.catch(next);

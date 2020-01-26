@@ -32,15 +32,11 @@ gamesRouter
 					error: `Missing '${key}' in request body`
 				});
 
-		const invalidWordList = word_list.toString().match(/[^a-zA-Z,\s]/g);
-		if (invalidWordList) {
-			return res.status(400).json({
-				error: `Cannot contain numbers or special characters.`
-			});
-		}
+		const invalidWordList = word_list
+			.toString()
+			.match(/[0-9\[\^\$\.\|\?\*\+\(\)\{\}]/g);
 
-		const invalidTitle = title.toString().match(/[^a-zA-Z,\s]/g);
-		if (invalidTitle) {
+		if (invalidWordList) {
 			return res.status(400).json({
 				error: `Cannot contain numbers or special characters.`
 			});
@@ -50,7 +46,7 @@ gamesRouter
 			.then(game => {
 				res.status(201)
 					.location(path.posix.join(req.originalUrl, `/${game.id}`))
-					.json(game);
+					.json(GamesService.serializeGame(game));
 			})
 			.catch(next);
 	});
@@ -60,11 +56,12 @@ gamesRouter
 	.all(requireAuth)
 	.get((req, res, next) => {
 		GamesService.getGameByGameId(res.app.get('db'), req.params.game_id)
+
 			.then(game => {
 				if (!game) {
 					return res.status(404).json({ error: `Can't find game.` });
 				}
-				res.status(200).json(game);
+				res.status(200).json(GamesService.serializeGame(game));
 			})
 			.catch(next);
 	})
