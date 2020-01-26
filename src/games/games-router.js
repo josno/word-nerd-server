@@ -21,11 +21,10 @@ gamesRouter
 			title,
 			word_list,
 			date_created,
-			//middleware has req.user.id from auth include in newGame object
+			/*Using req.user.id from auth include in newGame object*/
 			user_id: req.user.id
 		};
 
-		//checks that all required keys exist
 		for (const [key, value] of Object.entries(newGame))
 			if (value == null)
 				return res.status(400).json({
@@ -94,7 +93,7 @@ gamesRouter
 			word_list: word_list,
 			user_id: req.user.id,
 			id: req.params.game_id
-			//Must pass the validated user with token check
+			/*Must pass the validated user with token check*/
 		};
 
 		for (const [key, value] of Object.entries(gameToUpdate))
@@ -113,13 +112,8 @@ gamesRouter
 			});
 		}
 
-		GamesService.getGameByGameId(
-			//check if game exists
-			res.app.get('db'),
-			req.params.game_id
-		)
+		GamesService.getGameByGameId(res.app.get('db'), req.params.game_id)
 			.then(game => {
-				//if there is no game || game user id in db is not the user id in the request body
 				if (!game || game.user_id != req.user.id) {
 					return res.status(400).json({
 						error: `Can't find game.`

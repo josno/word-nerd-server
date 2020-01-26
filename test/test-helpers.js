@@ -109,11 +109,10 @@ function makeMaliciousGameArray(users) {
 }
 
 function seedGamesTables(db, users, games) {
-	// use a transaction to group the queries and auto rollback on any failure
 	return db.transaction(async trx => {
 		await seedUsers(trx, users);
 		await trx.into('games').insert(games);
-		// update the auto sequence to match the forced id values
+
 		await trx.raw(`SELECT setval('games_id_seq', ?)`, [
 			games[games.length - 1].id
 		]);
@@ -123,14 +122,12 @@ function seedGamesTables(db, users, games) {
 function seedUsers(db, users) {
 	const preppedUsers = users.map(user => ({
 		...user,
-		//sync bcrypt hashed password to regular password
 		password: bcrypt.hashSync(user.password, 1)
 	}));
 	return db
 		.into('users')
 		.insert(preppedUsers)
 		.then(() =>
-			// update the auto sequence to stay in sync
 			db.raw(`SELECT setval('users_id_seq', ?)`, [
 				users[users.length - 1].id
 			])
