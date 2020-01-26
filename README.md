@@ -2,7 +2,7 @@
 
 # Word Nerd Server
 
-#### I'm RESTful
+#### It's RESTful
 
 <i class="devicon-react-original"></i>
 The back end interface for the Word Nerd application. API for relevant and reusable user vocabulary lists, user authentication and new user validation.
