@@ -104,7 +104,7 @@ describe('Users Endpoints', function() {
 			});
 		});
 
-		context('Given an xss attack', () => {
+		context.only('Given an xss attack', () => {
 			it('removes xss from the response body', () => {
 				const maliciousUser = {
 					user_name: '<script>badusername</script>',

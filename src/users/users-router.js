@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const UsersService = require('../users/users-service');
 const AuthService = require('../auth/auth-service');
 const usersRouter = express.Router();
@@ -44,6 +43,7 @@ usersRouter.post('/', jsonBodyParser, (req, res, next) => {
 						));
 					})
 					.then(serializedUser => {
+						console.log(serializedUser);
 						const sub = serializedUser.user_name;
 						const payload = { user_id: serializedUser.id };
 						res.status(201).send({

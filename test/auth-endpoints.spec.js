@@ -46,7 +46,7 @@ describe('Auth Endpoints', function() {
 			});
 		});
 
-		it(`responds 400 'invalid user_name or password' when bad user_name`, () => {
+		it(`responds 400 'Incorrect username or password' when bad user_name`, () => {
 			const userInvalidUser = {
 				user_name: 'user-not',
 				password: 'existy'
@@ -54,10 +54,10 @@ describe('Auth Endpoints', function() {
 			return supertest(app)
 				.post('/api/v1/auth/login')
 				.send(userInvalidUser)
-				.expect(400, { error: `Incorrect user_name or password` });
+				.expect(400, { error: `Incorrect username or password` });
 		});
 
-		it(`responds 400 'invalid user_name or password' when bad password`, () => {
+		it(`responds 400 'Incorrect username or password' when bad password`, () => {
 			const userInvalidPass = {
 				user_name: testUser.user_name,
 				password: 'incorrect'
@@ -65,7 +65,7 @@ describe('Auth Endpoints', function() {
 			return supertest(app)
 				.post('/api/v1/auth/login')
 				.send(userInvalidPass)
-				.expect(400, { error: `Incorrect user_name or password` });
+				.expect(400, { error: `Incorrect username or password` });
 		});
 
 		it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
